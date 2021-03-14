@@ -24,7 +24,7 @@ namespace CalculadoraDataAPI.Controllers
         /// <summary>
         /// Método que retorna o cáclulo da data
         /// </summary>
-        /// <param name="data">dd/mm/yyyy hh:mm</param>
+        /// <param name="data">dd/MM/yyyy HH:mm</param>
         /// <param name="operacao">operador matemático soma (+) ou subtração (-)</param>
         /// <param name="valor"></param>
         /// <returns></returns>

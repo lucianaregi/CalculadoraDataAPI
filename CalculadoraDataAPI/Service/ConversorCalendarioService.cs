@@ -144,7 +144,10 @@ namespace CalculadoraDataAPI.Service
                 yyyy = yearAjust - 4715;
             }
 
-            var dateFormat = (int)day + "/" + (int)mm + "/" + (int)yyyy + " " + (int)hour + ":" + (int)minutes;
+            string _day = (int)day < 10 ? "0" + (int)day : ((int)day).ToString();
+            string _mm = (int)mm < 10 ? "0" + (int)mm : ((int)mm).ToString();
+
+            var dateFormat = _day + "/" + _mm + "/" + (int)yyyy + " " + (int)hour + ":" + (int)minutes;
 
             gregorianDate = dateFormat.ToString();
 
