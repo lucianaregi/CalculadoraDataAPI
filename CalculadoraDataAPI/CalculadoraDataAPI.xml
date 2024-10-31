@@ -4,93 +4,15 @@
         <name>CalculadoraDataAPI</name>
     </assembly>
     <members>
-        <member name="M:CalculadoraDataAPI.Controllers.CalcularDataController.#ctor(CalculadoraDataAPI.Service.ConversorCalendarioService)">
+        <member name="M:CalculadoraDataAPI.Controllers.CalcularDataController.Get(CalculadoraDataAPI.DTOs.DateRequestDto)">
             <summary>
-            Construtor
+            Calcula uma nova data com base na operação e valor fornecidos.
             </summary>
-            <param name="conversorCalendario"></param>
-        </member>
-        <member name="M:CalculadoraDataAPI.Controllers.CalcularDataController.Get(System.String,System.String,System.Int64)">
-            <summary>
-            Método que retorna o cáclulo da data
-            </summary>
-            <param name="data">dd/MM/yyyy HH:mm</param>
-            <param name="operacao">operador matemático soma (+) ou subtração (-)</param>
-            <param name="valor"></param>
-            <returns></returns>
-        </member>
-        <member name="M:CalculadoraDataAPI.Helper.Util.DateValidate(System.String)">
-            <summary>
-            Valida a data no formato dd/mm/yyyy hh:mm
-            </summary>
-            <param name="date"></param>
-            <returns></returns>
-        </member>
-        <member name="M:CalculadoraDataAPI.Helper.Util.IsValid(System.Int64)">
-            <summary>
-            Valida o valor
-            </summary>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:CalculadoraDataAPI.Helper.Util.PositiveNumber(System.Int64)">
-            <summary>
-            Retorna um valor positivo
-            </summary>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:CalculadoraDataAPI.Helper.Util.OperatorValidate(System.String)">
-            <summary>
-            Valida o operador
-            </summary>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:CalculadoraDataAPI.Service.ConversorCalendarioService.Add(System.Int32,System.Int32)">
-            <summary>
-            Operação de soma
-            </summary>
-            <param name="a"></param>
-            <param name="b"></param>
-            <returns></returns>
-        </member>
-        <member name="M:CalculadoraDataAPI.Service.ConversorCalendarioService.Subtract(System.Int32,System.Int32)">
-            <summary>
-            Operacão de subtração
-            </summary>
-            <param name="a"></param>
-            <param name="b"></param>
-            <returns></returns>
-        </member>
-        <member name="M:CalculadoraDataAPI.Service.ConversorCalendarioService.IsJulianDate(System.Int32,System.Int32,System.Int32)">
-            <summary>
-            Verifica se a data existe nos calendários Julian e Gregoriano
-            </summary>
-            <param name="year"></param>
-            <param name="month"></param>
-            <param name="day"></param>
-            <returns></returns>
-        </member>
-        <member name="M:CalculadoraDataAPI.Service.ConversorCalendarioService.DateToJD(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.String,System.Int64)">
-            <summary>
-            Converte a data para o calendário Julian e faz a operação de soma ou subtração
-            </summary>
-            <param name="year"></param>
-            <param name="month"></param>
-            <param name="day"></param>
-            <param name="hour"></param>
-            <param name="minute"></param>
-            <param name="op"></param>
-            <param name="alterDate"></param>
-            <returns></returns>
-        </member>
-        <member name="M:CalculadoraDataAPI.Service.ConversorCalendarioService.JulianToGregorian(System.Double)">
-            <summary>
-            Converte a data para o calendário gregoriano
-            </summary>
-            <param name="julianDate"></param>
-            <returns></returns>
+            <param name="request">Objeto contendo a data inicial, operação e valor.</param>
+            <returns>Nova data calculada.</returns>
+            <response code="200">Retorna a nova data calculada.</response>
+            <response code="400">Se os parâmetros fornecidos são inválidos.</response>
+            <response code="500">Se ocorreu um erro interno no servidor.</response>
         </member>
     </members>
 </doc>

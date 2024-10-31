@@ -1,68 +1,61 @@
-﻿using CalculadoraDataAPI.Helper;
-using CalculadoraDataAPI.Service;
+﻿using CalculadoraDataAPI.DTOs;
+using CalculadoraDataAPI.Interfaces;
+using CalculadoraDataAPI.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CalculadoraDataAPI.Controllers
 {
-    [Route("api/v1/calculardata")]
+    [Route("api/v2/calculardata")]
     [ApiController]
     public class CalcularDataController : ControllerBase
     {
-        private readonly ConversorCalendarioService _conversorCalendario;
+        private readonly IDataCalculationService _dataCalculationService;
+        private IConversorCalendarioService _conversorCalendario;
 
-        /// <summary>
-        /// Construtor
-        /// </summary>
-        /// <param name="conversorCalendario"></param>
-        public CalcularDataController(ConversorCalendarioService conversorCalendario) => _conversorCalendario = conversorCalendario;
-
-        /// <summary>
-        /// Método que retorna o cáclulo da data
-        /// </summary>
-        /// <param name="data">dd/MM/yyyy HH:mm</param>
-        /// <param name="operacao">operador matemático soma (+) ou subtração (-)</param>
-        /// <param name="valor"></param>
-        /// <returns></returns>
-        [HttpGet]
-        public IActionResult Get([FromQuery] string data, [FromQuery] string operacao, [FromQuery] long valor)
+        public CalcularDataController(IDataCalculationService dataCalculationService, IConversorCalendarioService conversorCalendario)
         {
-            string date = string.Empty;
-            string message = string.Empty;
-            bool _data = Util.DateValidate(data);
-            valor = Util.PositiveNumber(valor);
-            bool _valor = Util.IsValid(valor);
-            bool _operacao = Util.OperatorValidate(operacao);
+            _dataCalculationService = dataCalculationService;
+            _conversorCalendario = conversorCalendario;
+        }
 
+        /// <summary>
+        /// Calcula uma nova data com base na operação e valor fornecidos.
+        /// </summary>
+        /// <param name="request">Objeto contendo a data inicial, operação e valor.</param>
+        /// <returns>Nova data calculada.</returns>
+        /// <response code="200">Retorna a nova data calculada.</response>
+        /// <response code="400">Se os parâmetros fornecidos são inválidos.</response>
+        /// <response code="500">Se ocorreu um erro interno no servidor.</response>
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [SwaggerOperation(
+            Summary = "Calcula uma nova data",
+            Description = "Calcula uma nova data com base na operação e valor fornecidos.",
+            OperationId = "CalcularData",
+            Tags = new[] { "CalcularData" }
+        )]
+        [SwaggerResponse(StatusCodes.Status200OK, "Retorna a nova data calculada.", typeof(string))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Se os parâmetros fornecidos são inválidos.")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Se ocorreu um erro interno no servidor.")]
+        public IActionResult Get([FromQuery] DateRequestDto request)
+        {
             try
             {
-                if (_data && _valor && _operacao)
-                {
-                    var op = operacao;
-                    var valueDate = data.Split('/');
-                    var day = valueDate[0];
-                    var month = valueDate[1];
-                    var year = valueDate[2].Split(' ')[0];
-                    var hour = valueDate[2].Split(' ')[1].Split(':')[0];
-                    var minute = valueDate[2].Split(' ')[1].Split(':')[1];
-
-                    double dateJulian = _conversorCalendario.JulianDate(Int32.Parse(year), Int32.Parse(month), Int32.Parse(day), Int32.Parse(hour), Int32.Parse(minute), op, valor);
-                    date = _conversorCalendario.JulianToGregorian(dateJulian);
-
-                    return Ok(date);
-                }
-                else
-                {
-                    return BadRequest("Dados inválidos!");
-                }
+                string date = _dataCalculationService.CalculateDate(request);
+                return Ok(date);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (Exception)
             {
-                return BadRequest("Ocorreu um erro na sua solicitação. Por favor, tente mais tarde!");
+                return StatusCode(500, "Ocorreu um erro na sua solicitação. Por favor, tente mais tarde!");
             }
         }
     }

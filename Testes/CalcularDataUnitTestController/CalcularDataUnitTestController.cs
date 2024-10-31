@@ -1,87 +1,96 @@
-using CalculadoraDataAPI.Controllers;
-using CalculadoraDataAPI.Service;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using System;
 using Xunit;
+using Moq;
+using CalculadoraDataAPI.Controllers;
+using CalculadoraDataAPI.DTOs;
+using CalculadoraDataAPI.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using CalculadoraDataAPI.Services;
 
-namespace CalcularDataUnitTestController
+namespace CalculadoraDataAPI.Tests
 {
     public class CalcularDataUnitTestController
     {
-        private readonly ConversorCalendarioService _conversorCalendario;
+        private readonly Mock<IDataCalculationService> _dataCalculationServiceMock;
+        private readonly CalcularDataController _controller;
 
-        [Fact]
-        public void TestFailedDate()
+        public CalcularDataUnitTestController()
         {
-            // arrange
-            var controller = new CalcularDataController(_conversorCalendario);
+            // Mock do serviço de cálculo de data
+            _dataCalculationServiceMock = new Mock<IDataCalculationService>();
 
-            // act
-            var data = controller.Get("01/03/2021", "+", 2000);
+            // Mock do serviço de conversão de calendário
+            var conversorCalendarioMock = new Mock<ConversorCalendarioService>();
 
-            // Assert
-            var result = Assert.IsType<BadRequestObjectResult>(data);
-            Assert.Equal("Dados inválidos!", result.Value);
+            // Inicializa o controlador com os serviços mockados
+            _controller = new CalcularDataController(_dataCalculationServiceMock.Object, conversorCalendarioMock.Object);
         }
 
         [Fact]
-        public void TestFailedValue()
+        public void Get_ReturnsOkResult_WithValidData()
         {
-            // arrange
-            var controller = new CalcularDataController(_conversorCalendario);
+            // Arrange
+            var request = new DateRequestDto
+            {
+                Data = "14/03/2021 19:12",
+                Operacao = "+",
+                Valor = 3000
+            };
+            _dataCalculationServiceMock
+                .Setup(service => service.CalculateDate(request))
+                .Returns("16/03/2021 21:11");
 
-            // act
-            var data = controller.Get("01/03/2021 23:00", "+", 0);
+            // Act
+            var result = _controller.Get(request);
 
             // Assert
-            var result = Assert.IsType<BadRequestObjectResult>(data);
-            Assert.Equal("Dados inválidos!", result.Value);
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Equal("16/03/2021 21:11", okResult.Value);
         }
 
         [Fact]
-        public void TestOkDate()
+        public void Get_ReturnsBadRequest_WhenInvalidData()
         {
-            // arrange
-            var mockService = new Mock<ConversorCalendarioService>();
-                  
-            var controller = new CalcularDataController(mockService.Object);
-            // act
-            var data = controller.Get("01/03/2021 23:01", "+", 4000);
+            // Arrange
+            var request = new DateRequestDto
+            {
+                Data = "invalid date",
+                Operacao = "+",
+                Valor = 3000
+            };
+            _dataCalculationServiceMock
+                .Setup(service => service.CalculateDate(request))
+                .Throws(new ArgumentException("Dados inválidos!"));
+
+            // Act
+            var result = _controller.Get(request);
 
             // Assert
-            var result = Assert.IsType<OkObjectResult>(data);
-            Assert.Equal("04/03/2021 17:40", result.Value);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Dados inválidos!", badRequestResult.Value);
         }
 
         [Fact]
-        public void TestsOkDate()
+        public void Get_ReturnsInternalServerError_OnException()
         {
-            // arrange
-            var mockService = new Mock<ConversorCalendarioService>();
+            // Arrange
+            var request = new DateRequestDto
+            {
+                Data = "14/03/2021 19:12",
+                Operacao = "+",
+                Valor = 3000
+            };
+            _dataCalculationServiceMock
+                .Setup(service => service.CalculateDate(request))
+                .Throws(new Exception("Erro interno"));
 
-            var controller = new CalcularDataController(mockService.Object);
-            // act
-            var data = controller.Get("01/12/2021 23:01", "+", 4000);
+            // Act
+            var result = _controller.Get(request);
 
             // Assert
-            var result = Assert.IsType<OkObjectResult>(data);
-            Assert.Equal("04/12/2021 17:40", result.Value);
-        }
-
-        [Fact]
-        public void TestsOkDateMinus()
-        {
-            // arrange
-            var mockService = new Mock<ConversorCalendarioService>();
-
-            var controller = new CalcularDataController(mockService.Object);
-            // act
-            var data = controller.Get("01/12/2021 23:00", "-", 4000);
-
-            // Assert
-            var result = Assert.IsType<OkObjectResult>(data);
-            Assert.Equal("29/11/2021 4:19", result.Value);
+            var internalServerErrorResult = Assert.IsType<ObjectResult>(result);
+            Assert.Equal(500, internalServerErrorResult.StatusCode);
+            Assert.Equal("Ocorreu um erro na sua solicitação. Por favor, tente mais tarde!", internalServerErrorResult.Value);
         }
     }
 }
