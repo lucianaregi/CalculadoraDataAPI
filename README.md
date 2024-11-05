@@ -1,7 +1,7 @@
 
 # 📅 CalculadoraDataAPI
 
-A **CalculadoraDataAPI** é uma API em .NET 8 que permite realizar operações de cálculo de datas, incluindo conversão entre calendários Juliano e Gregoriano, além de realizar operações de adição e subtração. Esta API é útil para aplicações que precisam de manipulação de datas complexas.
+A **CalculadoraDataAPI** é uma API em .NET 8 que permite realizar operações de cálculo de datas, incluindo conversão entre calendários Juliano e Gregoriano, além de realizar operações de adição e subtração. O desafio é fazer o cálculo entre datas sem usar o DateTime!
 
 ## ⚙️ Funcionalidades
 
